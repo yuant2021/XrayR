@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/Misaka-blog/XrayR/common/legocmd/cmd"
 	"github.com/urfave/cli"
+	"github.com/yuant2021/XrayR/common/legocmd/cmd"
 )
 
 var version = "dev"
@@ -39,12 +39,12 @@ func New() (*LegoCMD, error) {
 	configPath := os.Getenv("XRAY_LOCATION_CONFIG")
 	if configPath != "" {
 		path = configPath
-	} else if cwd, err := os.Getwd(); err==nil{
+	} else if cwd, err := os.Getwd(); err == nil {
 		path = cwd
 	} else {
 		path = "."
 	}
-	
+
 	defaultPath = filepath.Join(path, "cert")
 
 	app.Flags = cmd.CreateFlags(defaultPath)

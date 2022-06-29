@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/Misaka-blog/XrayR/common/legocmd/log"
 	"github.com/urfave/cli"
+	"github.com/yuant2021/XrayR/common/legocmd/log"
 )
 
 func createRevoke() cli.Command {

@@ -1,6 +1,6 @@
 package panel
 
-import "github.com/Misaka-blog/XrayR/service/controller"
+import "github.com/yuant2021/XrayR/service/controller"
 
 func getDefaultLogConfig() *LogConfig {
 	return &LogConfig{

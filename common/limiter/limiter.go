@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Misaka-blog/XrayR/api"
 	"github.com/juju/ratelimit"
+	"github.com/yuant2021/XrayR/api"
 )
 
 type UserInfo struct {

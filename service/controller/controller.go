@@ -7,12 +7,12 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/Misaka-blog/XrayR/api"
-	"github.com/Misaka-blog/XrayR/common/legocmd"
-	"github.com/Misaka-blog/XrayR/common/serverstatus"
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/common/task"
 	"github.com/xtls/xray-core/core"
+	"github.com/yuant2021/XrayR/api"
+	"github.com/yuant2021/XrayR/common/legocmd"
+	"github.com/yuant2021/XrayR/common/serverstatus"
 )
 
 type Controller struct {

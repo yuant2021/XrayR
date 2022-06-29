@@ -8,12 +8,12 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/Misaka-blog/XrayR/api"
-	"github.com/Misaka-blog/XrayR/api/sspanel"
-	_ "github.com/Misaka-blog/XrayR/main/distro/all"
-	. "github.com/Misaka-blog/XrayR/service/controller"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/infra/conf"
+	"github.com/yuant2021/XrayR/api"
+	"github.com/yuant2021/XrayR/api/sspanel"
+	_ "github.com/yuant2021/XrayR/main/distro/all"
+	. "github.com/yuant2021/XrayR/service/controller"
 )
 
 func TestController(t *testing.T) {

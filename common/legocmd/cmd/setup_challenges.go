@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Misaka-blog/XrayR/common/legocmd/log"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/challenge/http01"
@@ -15,6 +14,7 @@ import (
 	"github.com/go-acme/lego/v4/providers/http/memcached"
 	"github.com/go-acme/lego/v4/providers/http/webroot"
 	"github.com/urfave/cli"
+	"github.com/yuant2021/XrayR/common/legocmd/log"
 )
 
 func setupChallenges(ctx *cli.Context, client *lego.Client) {

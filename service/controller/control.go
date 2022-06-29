@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Misaka-blog/XrayR/api"
-	"github.com/Misaka-blog/XrayR/app/mydispatcher"
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/inbound"
@@ -13,6 +11,8 @@ import (
 	"github.com/xtls/xray-core/features/routing"
 	"github.com/xtls/xray-core/features/stats"
 	"github.com/xtls/xray-core/proxy"
+	"github.com/yuant2021/XrayR/api"
+	"github.com/yuant2021/XrayR/app/mydispatcher"
 )
 
 func (c *Controller) removeInbound(tag string) error {

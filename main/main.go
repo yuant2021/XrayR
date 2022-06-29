@@ -12,9 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Misaka-blog/XrayR/panel"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"github.com/yuant2021/XrayR/panel"
 )
 
 var (

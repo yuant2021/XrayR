@@ -2,19 +2,12 @@ package panel
 
 import (
 	"encoding/json"
-	"github.com/Misaka-blog/XrayR/app/mydispatcher"
 	io "io/ioutil"
 	"log"
 	"sync"
 
-	"github.com/Misaka-blog/XrayR/api"
-	"github.com/Misaka-blog/XrayR/api/pmpanel"
-	"github.com/Misaka-blog/XrayR/api/proxypanel"
-	"github.com/Misaka-blog/XrayR/api/sspanel"
-	"github.com/Misaka-blog/XrayR/api/v2board"
-	_ "github.com/Misaka-blog/XrayR/main/distro/all"
-	"github.com/Misaka-blog/XrayR/service"
-	"github.com/Misaka-blog/XrayR/service/controller"
+	"github.com/yuant2021/XrayR/app/mydispatcher"
+
 	"github.com/imdario/mergo"
 	"github.com/r3labs/diff/v2"
 	"github.com/xtls/xray-core/app/proxyman"
@@ -22,6 +15,14 @@ import (
 	"github.com/xtls/xray-core/common/serial"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/infra/conf"
+	"github.com/yuant2021/XrayR/api"
+	"github.com/yuant2021/XrayR/api/pmpanel"
+	"github.com/yuant2021/XrayR/api/proxypanel"
+	"github.com/yuant2021/XrayR/api/sspanel"
+	"github.com/yuant2021/XrayR/api/v2board"
+	_ "github.com/yuant2021/XrayR/main/distro/all"
+	"github.com/yuant2021/XrayR/service"
+	"github.com/yuant2021/XrayR/service/controller"
 )
 
 // Panel Structure

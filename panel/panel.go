@@ -18,6 +18,7 @@ import (
 	"github.com/yuant2021/XrayR/api"
 	"github.com/yuant2021/XrayR/api/pmpanel"
 	"github.com/yuant2021/XrayR/api/proxypanel"
+	"github.com/yuant2021/XrayR/api/ssmanager"
 	"github.com/yuant2021/XrayR/api/sspanel"
 	"github.com/yuant2021/XrayR/api/v2board"
 	_ "github.com/yuant2021/XrayR/main/distro/all"
@@ -172,6 +173,8 @@ func (p *Panel) Start() {
 			apiClient = pmpanel.New(nodeConfig.ApiConfig)
 		case "Proxypanel":
 			apiClient = proxypanel.New(nodeConfig.ApiConfig)
+		case "SSManager":
+			apiClient = ssmanager.New(nodeConfig.ApiConfig)
 		default:
 			log.Panicf("Unsupport panel type: %s", nodeConfig.PanelType)
 		}

@@ -481,5 +481,6 @@ func (c *Controller) userInfoMonitor() (err error) {
 }
 
 func (c *Controller) buildNodeTag() string {
+	fmt.Println(c.nodeInfo.NodeType, c.config.ListenIP, c.nodeInfo.Port)
 	return fmt.Sprintf("%s_%s_%d", c.nodeInfo.NodeType, c.config.ListenIP, c.nodeInfo.Port)
 }

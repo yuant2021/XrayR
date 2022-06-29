@@ -197,7 +197,35 @@ func (c *APIClient) parseSSManagerNodeResponse(nodeInfoResponse *simplejson.Json
 
 func (c *APIClient) GetNodeRule() (*[]api.DetectRule, *[]string, error) {
 	ruleList := c.LocalRuleList
-	return &ruleList, nil, nil
+	var protocolRule []string
+	path := ""
+	res, err := c.client.R().
+		SetQueryParam("action", "get_audit").
+		ForceContentType("application/json").
+		Get(path)
+	response, err := c.parseResponse(res, path, err)
+	if err != nil {
+		return nil, nil, err
+	}
+	numRules := len(response.MustArray())
+	if numRules > 0 {
+		for i := 0; i < numRules; i++ {
+			if response.GetIndex(i).Get("type").MustString() == "1" {
+				rule_id, _ := strconv.Atoi(response.GetIndex(i).Get("id").MustString())
+				ruleListItem := api.DetectRule{
+					ID:      rule_id,
+					Pattern: regexp.MustCompile(response.GetIndex(i).Get("regex").MustString()),
+				}
+				ruleList = append(ruleList, ruleListItem)
+			} else {
+				if response.GetIndex(i).Get("type").MustString() == "2" {
+					protocolRule = append(protocolRule, response.GetIndex(i).Get("regex").MustString())
+				}
+			}
+		}
+	}
+	fmt.Println(ruleList)
+	return &ruleList, &protocolRule, nil
 }
 
 // ReportNodeStatus implements the API interface

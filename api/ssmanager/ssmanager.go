@@ -16,18 +16,19 @@ import (
 )
 
 type APIClient struct {
-	client        *resty.Client
-	APIHost       string
-	NodeID        int
-	Key           string
-	NodeType      string
-	EnableVless   bool
-	EnableXTLS    bool
-	SpeedLimit    float64
-	DeviceLimit   int
-	LocalRuleList []api.DetectRule
-	ConfigResp    *simplejson.Json
-	access        sync.Mutex
+	client           *resty.Client
+	APIHost          string
+	NodeID           int
+	Key              string
+	NodeType         string
+	EnableVless      bool
+	EnableXTLS       bool
+	SpeedLimit       float64
+	DeviceLimit      int
+	LocalRuleList    []api.DetectRule
+	ConfigResp       *simplejson.Json
+	LastReportOnline map[int]int
+	access           sync.Mutex
 }
 
 // New create an api instance
@@ -51,6 +52,7 @@ func New(apiConfig *api.Config) *APIClient {
 	client.SetQueryParam("token", apiConfig.Key)
 	nodeID := strconv.Itoa(apiConfig.NodeID)
 	client.SetQueryParam("node_id", nodeID)
+	// client.SetDebug(true)
 	// Create Key for each requests
 	client.SetQueryParams(map[string]string{
 		"node_id": strconv.Itoa(apiConfig.NodeID),
@@ -207,6 +209,8 @@ func (c *APIClient) GetNodeRule() (*[]api.DetectRule, *[]string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	c.access.Lock()
+	defer c.access.Unlock()
 	numRules := len(response.MustArray())
 	if numRules > 0 {
 		for i := 0; i < numRules; i++ {
@@ -224,22 +228,83 @@ func (c *APIClient) GetNodeRule() (*[]api.DetectRule, *[]string, error) {
 			}
 		}
 	}
-	fmt.Println(ruleList)
+	// fmt.Println(ruleList)
 	return &ruleList, &protocolRule, nil
 }
 
 // ReportNodeStatus implements the API interface
 func (c *APIClient) ReportNodeStatus(nodeStatus *api.NodeStatus) (err error) {
+	path := ""
+	systemload := SystemLoad{
+		Uptime: strconv.Itoa(nodeStatus.Uptime),
+		Load:   fmt.Sprintf("%.2f %.2f %.2f", nodeStatus.CPU/100, nodeStatus.CPU/100, nodeStatus.CPU/100),
+	}
+
+	res, err := c.client.R().
+		SetBody(systemload).
+		SetQueryParam("action", "report_node_status").
+		ForceContentType("application/json").
+		Post(path)
+
+	_, err = c.parseResponse(res, path, err)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 //ReportNodeOnlineUsers implements the API interface
 func (c *APIClient) ReportNodeOnlineUsers(onlineUserList *[]api.OnlineUser) error {
+	c.access.Lock()
+	defer c.access.Unlock()
+
+	reportOnline := make(map[int]int)
+	data := make([]OnlineUser, len(*onlineUserList))
+	for i, user := range *onlineUserList {
+		data[i] = OnlineUser{UID: user.UID, IP: user.IP}
+		if _, ok := reportOnline[user.UID]; ok {
+			reportOnline[user.UID]++
+		} else {
+			reportOnline[user.UID] = 1
+		}
+	}
+	c.LastReportOnline = reportOnline // Update LastReportOnline
+
+	path := ""
+	res, err := c.client.R().
+		SetQueryParam("action", "report_node_online").
+		SetBody(data).
+		ForceContentType("application/json").
+		Post(path)
+
+	_, err = c.parseResponse(res, path, err)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // ReportIllegal implements the API interface
 func (c *APIClient) ReportIllegal(detectResultList *[]api.DetectResult) error {
+	data := make([]IllegalItem, len(*detectResultList))
+	for i, r := range *detectResultList {
+		data[i] = IllegalItem{
+			ID:  r.RuleID,
+			UID: r.UID,
+		}
+	}
+	path := ""
+	res, err := c.client.R().
+		SetQueryParam("action", "report_audit").
+		SetBody(data).
+		ForceContentType("application/json").
+		Post(path)
+	_, err = c.parseResponse(res, path, err)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -274,22 +339,39 @@ func (c *APIClient) GetUserList() (UserList *[]api.UserInfo, err error) {
 		case "Shadowsocks":
 			user.Email = response.GetIndex(i).Get("email").MustString()
 			user.Passwd = response.GetIndex(i).Get("uuid").MustString()
-		case "Trojan":
-			user.UUID = response.Get("data").GetIndex(i).Get("trojan_user").Get("password").MustString()
-			user.Email = response.Get("data").GetIndex(i).Get("trojan_user").Get("password").MustString()
-		case "V2ray":
-			user.UUID = response.Get("data").GetIndex(i).Get("v2ray_user").Get("uuid").MustString()
-			user.Email = response.Get("data").GetIndex(i).Get("v2ray_user").Get("email").MustString()
-			user.AlterID = response.Get("data").GetIndex(i).Get("v2ray_user").Get("alter_id").MustInt()
+			// case "Trojan":
+			// 	user.UUID = response.Get("data").GetIndex(i).Get("trojan_user").Get("password").MustString()
+			// 	user.Email = response.Get("data").GetIndex(i).Get("trojan_user").Get("password").MustString()
+			// case "V2ray":
+			// 	user.UUID = response.Get("data").GetIndex(i).Get("v2ray_user").Get("uuid").MustString()
+			// 	user.Email = response.Get("data").GetIndex(i).Get("v2ray_user").Get("email").MustString()
+			// 	user.AlterID = response.Get("data").GetIndex(i).Get("v2ray_user").Get("alter_id").MustInt()
+			//TODO
 		}
 		userList[i] = user
-		fmt.Println(user)
+		// fmt.Println(user)
 	}
 	return &userList, nil
 }
 
 // ReportUserTraffic reports the user traffic
 func (c *APIClient) ReportUserTraffic(userTraffic *[]api.UserTraffic) error {
-
+	path := ""
+	data := make([]UserTraffic, len(*userTraffic))
+	for i, traffic := range *userTraffic {
+		data[i] = UserTraffic{
+			UID:      traffic.UID,
+			Upload:   traffic.Upload,
+			Download: traffic.Download}
+	}
+	res, err := c.client.R().
+		SetQueryParam("action", "report_flow").
+		SetBody(data).
+		ForceContentType("application/json").
+		Post(path)
+	_, err = c.parseResponse(res, path, err)
+	if err != nil {
+		return err
+	}
 	return nil
 }
